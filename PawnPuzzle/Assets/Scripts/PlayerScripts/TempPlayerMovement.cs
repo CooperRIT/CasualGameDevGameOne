@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class TempPlayerMovement : NetworkBehaviour
 {
@@ -21,9 +20,9 @@ public class TempPlayerMovement : NetworkBehaviour
     }
 
     //this is for testing, will relocate a lot of this network stuff in the future
-    private void OnNetworkInstantiate()
+    public override void OnNetworkSpawn()
     {
-        if (!IsOwner)
+        if(!IsOwner)
         {
             Destroy(this);
         }
@@ -33,5 +32,6 @@ public class TempPlayerMovement : NetworkBehaviour
     void Update()
     {
         playerTransform.position += movementInputVec3 * speed * Time.deltaTime;
+        Debug.Log(movementInputVec3);
     }
 }
