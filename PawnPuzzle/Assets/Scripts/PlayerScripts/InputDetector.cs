@@ -12,7 +12,7 @@ public class InputDetector : MonoBehaviour
     private PlayerInputs playerInput;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         playerInput = new PlayerInputs();
     }
