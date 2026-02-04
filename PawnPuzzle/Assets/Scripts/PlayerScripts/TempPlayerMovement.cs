@@ -1,37 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class TempPlayerMovement : NetworkBehaviour
 {
-
     [SerializeField] InputDetector iD;
-
-    [SerializeField] float speed;
-
+    [SerializeField] float speed = 5f;
     [SerializeField] Transform playerTransform;
+    [SerializeField] SpriteRenderer playerSprite;
+
+    PlayerNetworkData networkData;
 
     Vector3 movementInputVec3 => iD.MovmentInput;
-    // Start is called before the first frame update
-    void Start()
+
+    void Awake()
     {
-        
+        networkData = GetComponent<PlayerNetworkData>();
+        playerSprite = transform.parent.GetComponent<SpriteRenderer>();
     }
 
-    //this is for testing, will relocate a lot of this network stuff in the future
     public override void OnNetworkSpawn()
     {
-        if(!IsOwner)
+        // Only owner moves
+        if (!IsOwner)
         {
             Destroy(this);
+            return;
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Local movement
         playerTransform.position += movementInputVec3 * speed * Time.deltaTime;
-        Debug.Log(movementInputVec3);
+
+        // Visual sync
+        if (networkData != null)
+        {
+            playerSprite.color = networkData.Data.Value.Color;
+        }
     }
 }

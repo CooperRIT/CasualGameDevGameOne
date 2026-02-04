@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class NetworkManagerSingleton : NetworkBehaviour
+public class NetworkManagerSingleton : MonoBehaviour
 {
     public static NetworkManager networkManager;
 

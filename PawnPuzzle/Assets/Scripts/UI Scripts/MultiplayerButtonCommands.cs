@@ -10,17 +10,10 @@ public class MultiplayerButtonCommands : MonoBehaviour
     public void OnClickHost()
     {
         NetworkManagerSingleton.networkManager.StartHost();
-        DestroyUI();
     }
 
     public void OnClickClient()
     {
         NetworkManagerSingleton.networkManager.StartClient();
-        DestroyUI();
-    }
-
-    private void DestroyUI()
-    {
-        Destroy(gameObject);
     }
 }

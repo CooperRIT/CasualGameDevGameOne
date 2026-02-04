@@ -159,6 +159,34 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""Admin"",
+            ""id"": ""595b245f-d5da-4611-9fc0-8d0da10e4a4d"",
+            ""actions"": [
+                {
+                    ""name"": ""ReloadScene"",
+                    ""type"": ""Button"",
+                    ""id"": ""ef832d38-c424-42a2-a30c-6828ee7bcf7e"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""740429e6-5b35-4dae-bc3b-8e0ebff49b22"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ReloadScene"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -166,11 +194,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         // BasicMovement
         m_BasicMovement = asset.FindActionMap("BasicMovement", throwIfNotFound: true);
         m_BasicMovement_WASD = m_BasicMovement.FindAction("WASD", throwIfNotFound: true);
+        // Admin
+        m_Admin = asset.FindActionMap("Admin", throwIfNotFound: true);
+        m_Admin_ReloadScene = m_Admin.FindAction("ReloadScene", throwIfNotFound: true);
     }
 
     ~@PlayerInputs()
     {
         UnityEngine.Debug.Assert(!m_BasicMovement.enabled, "This will cause a leak and performance issues, PlayerInputs.BasicMovement.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Admin.enabled, "This will cause a leak and performance issues, PlayerInputs.Admin.Disable() has not been called.");
     }
 
     /// <summary>
@@ -338,6 +370,102 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="BasicMovementActions" /> instance referencing this action map.
     /// </summary>
     public BasicMovementActions @BasicMovement => new BasicMovementActions(this);
+
+    // Admin
+    private readonly InputActionMap m_Admin;
+    private List<IAdminActions> m_AdminActionsCallbackInterfaces = new List<IAdminActions>();
+    private readonly InputAction m_Admin_ReloadScene;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Admin".
+    /// </summary>
+    public struct AdminActions
+    {
+        private @PlayerInputs m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public AdminActions(@PlayerInputs wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Admin/ReloadScene".
+        /// </summary>
+        public InputAction @ReloadScene => m_Wrapper.m_Admin_ReloadScene;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Admin; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="AdminActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(AdminActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="AdminActions" />
+        public void AddCallbacks(IAdminActions instance)
+        {
+            if (instance == null || m_Wrapper.m_AdminActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_AdminActionsCallbackInterfaces.Add(instance);
+            @ReloadScene.started += instance.OnReloadScene;
+            @ReloadScene.performed += instance.OnReloadScene;
+            @ReloadScene.canceled += instance.OnReloadScene;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="AdminActions" />
+        private void UnregisterCallbacks(IAdminActions instance)
+        {
+            @ReloadScene.started -= instance.OnReloadScene;
+            @ReloadScene.performed -= instance.OnReloadScene;
+            @ReloadScene.canceled -= instance.OnReloadScene;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="AdminActions.UnregisterCallbacks(IAdminActions)" />.
+        /// </summary>
+        /// <seealso cref="AdminActions.UnregisterCallbacks(IAdminActions)" />
+        public void RemoveCallbacks(IAdminActions instance)
+        {
+            if (m_Wrapper.m_AdminActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="AdminActions.AddCallbacks(IAdminActions)" />
+        /// <seealso cref="AdminActions.RemoveCallbacks(IAdminActions)" />
+        /// <seealso cref="AdminActions.UnregisterCallbacks(IAdminActions)" />
+        public void SetCallbacks(IAdminActions instance)
+        {
+            foreach (var item in m_Wrapper.m_AdminActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_AdminActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="AdminActions" /> instance referencing this action map.
+    /// </summary>
+    public AdminActions @Admin => new AdminActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "BasicMovement" which allows adding and removing callbacks.
     /// </summary>
@@ -352,5 +480,20 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnWASD(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Admin" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="AdminActions.AddCallbacks(IAdminActions)" />
+    /// <seealso cref="AdminActions.RemoveCallbacks(IAdminActions)" />
+    public interface IAdminActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "ReloadScene" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnReloadScene(InputAction.CallbackContext context);
     }
 }

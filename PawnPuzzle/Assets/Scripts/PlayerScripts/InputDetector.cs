@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class InputDetector : MonoBehaviour
 {
@@ -26,11 +27,17 @@ public class InputDetector : MonoBehaviour
     private void OnEnable()
     {
         playerInput.Enable();
+        playerInput.Admin.ReloadScene.performed += ReloadApplication;
     }
 
     private void OnDisable()
     {
         playerInput.Disable();
+    }
+
+    private void ReloadApplication(InputAction.CallbackContext ctx)
+    {
+        SceneManager.LoadScene(0);
     }
 
 }

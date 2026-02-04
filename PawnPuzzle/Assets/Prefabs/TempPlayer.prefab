@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3208225013
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 7582861885186861973}
   - component: {fileID: 8313058116686121366}
   - component: {fileID: 4479888107250000876}
+  - component: {fileID: 6554221311747858887}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -199,3 +200,17 @@ MonoBehaviour:
   iD: {fileID: 8313058116686121366}
   speed: 10
   playerTransform: {fileID: 8375068058609346278}
+  playerSprite: {fileID: 7792322345862372829}
+--- !u!114 &6554221311747858887
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7209145450184876069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e46f27178aad35429d06212615bd1b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 7792322345862372829}
