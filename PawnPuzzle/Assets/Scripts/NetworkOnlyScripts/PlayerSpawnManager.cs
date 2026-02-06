@@ -20,6 +20,12 @@ public class PlayerSpawnManager : NetworkBehaviour
     [SerializeField] TextMeshProUGUI objectiveText; // Just a regular serialized field
 
     [SerializeField] LevelBuilder levelBuilder;
+
+    [SerializeField] Transform winBox;
+
+    public List<Sprite> sprites = new List<Sprite>();
+
+    bool gameStarted;
     void Awake()
     {
         if (Instance == null)
@@ -36,7 +42,7 @@ public class PlayerSpawnManager : NetworkBehaviour
         Color assignedColor = players.Count == 1 ? Color.blue : Color.red;
 
         // Server directly sets NetworkVariable
-        player.Data.Value = new PlayerMultiData(assignedColor, players.Count);
+        player.Data.Value = new PlayerMultiData(players.Count, players.Count - 1); // YOU DO NOT NEED ALL THIS DATA WILL OPTIMIZE
 
         if (players.Count == 2)
             StartCoroutine(nameof(StartGame));
@@ -53,6 +59,10 @@ public class PlayerSpawnManager : NetworkBehaviour
         EnablePlayerSpecificCamerasClientRpc();
 
         EnableLevel();
+
+        winBox.position = Vector3.zero;
+
+        gameStarted = true;
     }
 
     /// <summary>
@@ -108,5 +118,13 @@ public class PlayerSpawnManager : NetworkBehaviour
     public void SetObjectiveTextClientRpc(string text)
     {
         objectiveText.text = text;
+    }
+
+    public void PlayerFellOff(int playerId)
+    {
+        if (gameStarted)
+        {
+            players[playerId - 1].MoveMeClientRpc(spawnPoints[playerId - 1]);
+        }
     }
 }

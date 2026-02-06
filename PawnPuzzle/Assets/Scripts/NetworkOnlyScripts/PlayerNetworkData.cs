@@ -4,33 +4,33 @@ using System;
 
 public struct PlayerMultiData : INetworkSerializable, IEquatable<PlayerMultiData>
 {
-    public Color Color;
     public int PlayerID;
+    public int SpriteIndex;
 
-    public PlayerMultiData(Color color, int playerID)
+    public PlayerMultiData(int playerID, int spriteIndex)
     {
-        Color = color;
         PlayerID = playerID;
+        SpriteIndex = spriteIndex;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer)
         where T : IReaderWriter
     {
-        serializer.SerializeValue(ref Color);
+        serializer.SerializeValue(ref PlayerID);
+        serializer.SerializeValue(ref SpriteIndex);
     }
 
     public bool Equals(PlayerMultiData other)
     {
-        return Color.Equals(other.Color);
+        return PlayerID == other.PlayerID
+            && SpriteIndex == other.SpriteIndex;
     }
 }
 
 public class PlayerNetworkData : NetworkBehaviour
 {
-    public NetworkVariable<PlayerMultiData> Data =
-        new NetworkVariable<PlayerMultiData>();
-
-    private SpriteRenderer spriteRenderer;
+    public NetworkVariable<PlayerMultiData> Data = new NetworkVariable<PlayerMultiData>();
+    public SpriteRenderer spriteRenderer;
 
     void Awake()
     {
@@ -45,27 +45,25 @@ public class PlayerNetworkData : NetworkBehaviour
         if (IsServer)
         {
             // Default
-            Data.Value = new PlayerMultiData(Color.white, 0);
+            Data.Value = new PlayerMultiData(0, 0);
 
             // Register with manager
             PlayerSpawnManager.Instance.RegisterPlayer(this);
-
             Debug.Log("This is the server");
         }
 
         // Apply immediately (late join safety)
-        ApplyColor(Data.Value.Color);
+        ApplyData(Data.Value);
     }
 
     void OnDataChanged(PlayerMultiData oldData, PlayerMultiData newData)
     {
-        ApplyColor(newData.Color);
+        ApplyData(newData);
     }
 
-    void ApplyColor(Color color)
+    void ApplyData(PlayerMultiData data)
     {
-        if (spriteRenderer != null)
-            spriteRenderer.color = color;
+        spriteRenderer.sprite = PlayerSpawnManager.Instance.sprites[data.SpriteIndex];
     }
 
     [ClientRpc]

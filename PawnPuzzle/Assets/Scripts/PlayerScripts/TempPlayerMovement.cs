@@ -32,11 +32,5 @@ public class TempPlayerMovement : NetworkBehaviour
     {
         // Local movement
         playerTransform.position += movementInputVec3 * speed * Time.deltaTime;
-
-        // Visual sync
-        if (networkData != null)
-        {
-            playerSprite.color = networkData.Data.Value.Color;
-        }
     }
 }
