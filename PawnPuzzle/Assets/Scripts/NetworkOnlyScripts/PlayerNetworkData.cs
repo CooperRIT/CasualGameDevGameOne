@@ -5,10 +5,12 @@ using System;
 public struct PlayerMultiData : INetworkSerializable, IEquatable<PlayerMultiData>
 {
     public Color Color;
+    public int PlayerID;
 
-    public PlayerMultiData(Color color)
+    public PlayerMultiData(Color color, int playerID)
     {
         Color = color;
+        PlayerID = playerID;
     }
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer)
@@ -43,7 +45,7 @@ public class PlayerNetworkData : NetworkBehaviour
         if (IsServer)
         {
             // Default
-            Data.Value = new PlayerMultiData(Color.white);
+            Data.Value = new PlayerMultiData(Color.white, 0);
 
             // Register with manager
             PlayerSpawnManager.Instance.RegisterPlayer(this);
@@ -64,5 +66,11 @@ public class PlayerNetworkData : NetworkBehaviour
     {
         if (spriteRenderer != null)
             spriteRenderer.color = color;
+    }
+
+    [ClientRpc]
+    public void MoveMeClientRpc(Vector3 position)
+    {
+        transform.parent.position = position;
     }
 }

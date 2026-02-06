@@ -1,5 +1,8 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
@@ -12,8 +15,11 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     [SerializeField] List<Vector3> spawnPoints = new List<Vector3>();
 
-    [SerializeField] GameObject objectiveText;
+    [SerializeField] List<GameObject> playerCameras = new List<GameObject>();
 
+    [SerializeField] TextMeshProUGUI objectiveText; // Just a regular serialized field
+
+    [SerializeField] LevelBuilder levelBuilder;
     void Awake()
     {
         if (Instance == null)
@@ -25,66 +31,82 @@ public class PlayerSpawnManager : NetworkBehaviour
     // Called by PlayerNetworkData when player spawns
     public void RegisterPlayer(PlayerNetworkData player)
     {
-        if(IsHost)
-        {
-            Debug.Log("I am the Host's version");
-        }
-        if(IsClient)
-        {
-            Debug.Log("I am the client's version");
-        }
-        if(IsServer)
-        {
-            Debug.Log("I am the server");
-        }
-
         players.Add(player);
 
         Color assignedColor = players.Count == 1 ? Color.blue : Color.red;
 
         // Server directly sets NetworkVariable
-        player.Data.Value = new PlayerMultiData(assignedColor);
+        player.Data.Value = new PlayerMultiData(assignedColor, players.Count);
 
         if (players.Count == 2)
-            StartGame();
+            StartCoroutine(nameof(StartGame));
     }
 
-    void StartGame()
+    IEnumerator StartGame()
     {
-        // Teleport on server
-        for (int i = 0; i < players.Count; i++)
-        {
-            players[i].transform.parent.position = spawnPoints[i];
-        }
+        yield return new WaitForSeconds(.5f);
 
-        TeleportPlayersClientRpc();
-
-        MakeObjectEnabledServerRpc();
+        TeleportPlayers();
 
         MakeObjectEnabledClientRpc();
+
+        EnablePlayerSpecificCamerasClientRpc();
+
+        EnableLevel();
     }
 
+    /// <summary>
+    /// Makes it so that the server will gain control over the first camera and the client will gain control over the first
+    /// </summary>
     [ClientRpc]
-    void TeleportPlayersClientRpc()
+    private void EnablePlayerSpecificCamerasClientRpc()
+    {
+        Camera.main.gameObject.SetActive(false);
+
+        if(IsServer)
+        {
+            Debug.Log("I am the server and I am enabling the first player camera");
+            playerCameras[0].gameObject.SetActive(true);
+        }
+        else
+        {
+            playerCameras[1].gameObject.SetActive(true);
+        }
+    }
+
+    private void EnableLevel()
+    {
+        levelBuilder.LoadLevelClientRpc(0);
+    }
+
+    void TeleportPlayers()
     {
         // Send the network IDs and positions
         for (int i = 0; i < players.Count; i++)
         {
-            players[i].transform.parent.position = spawnPoints[i];
+            players[i].MoveMeClientRpc(spawnPoints[i]);
+            Debug.Log("teleported");
         }
-    }
-
-    [ServerRpc]
-    void MakeObjectEnabledServerRpc()
-    {
-        objectiveText.SetActive(true);
     }
 
     [ClientRpc]
     void MakeObjectEnabledClientRpc()
     {
-        objectiveText.SetActive(true);
+        objectiveText.gameObject.SetActive(true);
+    }
 
-        Debug.Log("Hello");
+
+    public void SetWinGameCondition()
+    {
+        if (IsServer)
+        {
+            SetObjectiveTextClientRpc("You win");
+        }
+    }
+
+    [ClientRpc]
+    public void SetObjectiveTextClientRpc(string text)
+    {
+        objectiveText.text = text;
     }
 }
