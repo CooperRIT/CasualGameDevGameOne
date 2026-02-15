@@ -6,7 +6,6 @@ public class GridMovement : MonoBehaviour
 {
 
     private PlayerInputs controls;
-    [SerializeField] private bool isRepeatable = false;
     [SerializeField] private float moveDuration = 0.1f;
     [SerializeField] private float gridSize = 1.0f;
 
