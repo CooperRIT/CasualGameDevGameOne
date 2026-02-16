@@ -1850,8 +1850,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   players: []
   spawnPoints:
-  - {x: -8, y: 4, z: 0}
-  - {x: 8, y: -4, z: 0}
+  - spawnLocation_PlayerOne: {x: -8, y: 4, z: 0}
+    spawnLocation_PlayerTwo: {x: 8, y: -4, z: 0}
+  - spawnLocation_PlayerOne: {x: 0, y: 0, z: 0}
+    spawnLocation_PlayerTwo: {x: 0, y: 0, z: 0}
   playerCameras:
   - {fileID: 1993999083}
   - {fileID: 412365186}

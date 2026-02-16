@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class OnTriggerWin : NetworkBehaviour
 {
-
     int storedID = 0;
     int playersEntered = 0;
 

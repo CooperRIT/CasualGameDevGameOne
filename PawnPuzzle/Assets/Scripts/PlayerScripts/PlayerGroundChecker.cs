@@ -27,4 +27,9 @@ public class PlayerGroundChecker : MonoBehaviour
             PlayerSpawnManager.Instance.PlayerFellOff(multiData.Data.Value.PlayerID);
         }
     }
+
+    private void OnDrawGizmos()
+    {
+        Debug.DrawRay(transform.position, Vector3.forward * 10);
+    }
 }

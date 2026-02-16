@@ -1,11 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Xml.Serialization;
 using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
+
+[System.Serializable]
+struct SpawnPointData
+{
+    public Vector3 spawnLocation_PlayerOne;
+    public Vector3 spawnLocation_PlayerTwo;
+}
 
 public class PlayerSpawnManager : NetworkBehaviour
 {
@@ -13,7 +21,7 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     [SerializeField] List<PlayerNetworkData> players = new List<PlayerNetworkData>();
 
-    [SerializeField] List<Vector3> spawnPoints = new List<Vector3>();
+    [SerializeField] List<SpawnPointData> spawnPoints = new List<SpawnPointData>();
 
     [SerializeField] List<GameObject> playerCameras = new List<GameObject>();
 
@@ -24,6 +32,8 @@ public class PlayerSpawnManager : NetworkBehaviour
     [SerializeField] Transform winBox;
 
     public List<Sprite> sprites = new List<Sprite>();
+
+    int levelIndex = 0;
 
     bool gameStarted;
     void Awake()
@@ -58,7 +68,7 @@ public class PlayerSpawnManager : NetworkBehaviour
 
         EnablePlayerSpecificCamerasClientRpc();
 
-        EnableLevel();
+        LoadLevel();
 
         winBox.position = Vector3.zero;
 
@@ -84,19 +94,23 @@ public class PlayerSpawnManager : NetworkBehaviour
         }
     }
 
-    private void EnableLevel()
+    private void LoadLevel()
     {
-        levelBuilder.LoadLevelClientRpc(0);
+        levelBuilder.LoadLevelClientRpc(levelIndex);
+
+        int previousLevelIndex = levelIndex - 1;
+
+        if (previousLevelIndex <= -1)
+        {
+            return;
+        }
+        levelBuilder.UnloadPreviousLevelClientRpc(previousLevelIndex);
     }
 
     void TeleportPlayers()
     {
-        // Send the network IDs and positions
-        for (int i = 0; i < players.Count; i++)
-        {
-            players[i].MoveMeClientRpc(spawnPoints[i]);
-            Debug.Log("teleported");
-        }
+        players[0].transform.position = spawnPoints[levelIndex].spawnLocation_PlayerOne;
+        players[1].transform.position = spawnPoints[levelIndex].spawnLocation_PlayerTwo;
     }
 
     [ClientRpc]
@@ -108,10 +122,19 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     public void SetWinGameCondition()
     {
-        if (IsServer)
+        gameStarted = false;
+
+        /*if (IsServer)
         {
             SetObjectiveTextClientRpc("You win");
-        }
+        }*/
+
+        //Play some sort of animation
+
+        //Increase level index
+        levelIndex++;
+
+        StartGame();
     }
 
     [ClientRpc]
@@ -122,9 +145,12 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     public void PlayerFellOff(int playerId)
     {
-        if (gameStarted)
+        if(IsServer && gameStarted)
         {
-            players[playerId - 1].MoveMeClientRpc(spawnPoints[playerId - 1]);
+            players[0].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerOne);
+            return;
         }
+
+        players[1].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerTwo);
     }
 }

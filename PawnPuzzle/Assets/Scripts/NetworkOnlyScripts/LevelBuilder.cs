@@ -20,6 +20,13 @@ public class LevelBuilder : NetworkBehaviour
     [ClientRpc]
     public void LoadLevelClientRpc(int levelIndex)
     {
-        levelObject.transform.GetChild(0).gameObject.SetActive(true);
+        levelObject.transform.GetChild(levelIndex).gameObject.SetActive(true);
+    }
+
+    //Could combine these, not worth it
+    [ClientRpc]
+    public void UnloadPreviousLevelClientRpc(int previousLevelIndex)
+    {
+        levelObject.transform.GetChild(previousLevelIndex).gameObject.SetActive(false);
     }
 }
