@@ -143,23 +143,9 @@ public class PlayerSpawnManager : NetworkBehaviour
         }
 
         gameStarted = false;
+        StartCoroutine(nameof(transitionToNextLevel));
 
-        /*if (IsServer)
-        {
-            SetObjectiveTextClientRpc("You win");
-        }*/
-
-        //Play some sort of animation
-
-        //play sound effect
-        //SoundManager.instance.PlaySoundClip(winSound, winBox, 1f);
-
-        //Increase level index
-        levelIndex++;
-
-        Debug.Log("we starting next level");
-
-        StartCoroutine(nameof(StartGame));
+        
     }
 
     [ClientRpc]
@@ -187,6 +173,34 @@ public class PlayerSpawnManager : NetworkBehaviour
                 break;
         }
 
+    }
+
+    private IEnumerator transitionToNextLevel()
+    {
+
+        if(levelIndex == 2)
+        {
+            SetObjectiveTextClientRpc("Game is done YIPPPPEEEEE");
+            yield break;
+        }
+
+        for(int i = 3; i > 0; i--)
+        {
+            SetObjectiveTextClientRpc($"Next Level in {i}");
+            yield return new WaitForSeconds(1f);
+        }
+
+        levelIndex++;
+
+        Debug.Log("we starting next level");
+
+        SetObjectiveTextClientRpc("Goooooooooooooooo");
+
+        StartCoroutine(nameof(StartGame));
+
+        yield return new WaitForSeconds(1f);
+
+        SetObjectiveTextClientRpc("Meet In The Middle!");
     }
 
 

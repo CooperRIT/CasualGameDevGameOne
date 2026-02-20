@@ -24,7 +24,7 @@ public class PlayerGroundChecker : MonoBehaviour
         if(results.collider == null)
         {
             //Debug.Log("teleporting player");
-            //PlayerSpawnManager.Instance.PlayerFellOff(multiData.Data.Value.PlayerID);
+            PlayerSpawnManager.Instance.PlayerFellOff(multiData.Data.Value.PlayerID);
             return;
         }
 
