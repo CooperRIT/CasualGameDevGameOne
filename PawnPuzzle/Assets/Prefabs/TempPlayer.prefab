@@ -271,9 +271,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bbe19e82c4ff394694ed3fd1342c8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ground:
+  layersToCheck:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 520
   multiData: {fileID: 6554221311747858887}
 --- !u!1 &7209145450184876069
 GameObject:
@@ -333,10 +333,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89fdb95af16a6bb4583ca06ed3960218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  iD: {fileID: 8313058116686121366}
-  speed: 10
   playerTransform: {fileID: 8375068058609346278}
-  playerSprite: {fileID: 7792322345862372829}
+  moveDuration: 0.1
+  gridSize: 1.5
 --- !u!114 &6554221311747858887
 MonoBehaviour:
   m_ObjectHideFlags: 0

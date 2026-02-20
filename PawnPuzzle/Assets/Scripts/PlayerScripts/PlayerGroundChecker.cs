@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class PlayerGroundChecker : MonoBehaviour
 {
-    [SerializeField] LayerMask ground;
+    [SerializeField] LayerMask layersToCheck;
 
     [SerializeField] PlayerNetworkData multiData;
+
+    RaycastHit2D results;
 
     // Start is called before the first frame update
     void Start()
@@ -17,14 +19,24 @@ public class PlayerGroundChecker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Physics2D.Raycast(transform.position, Vector3.forward, 10, ground))
-        {
+        results = Physics2D.Raycast(transform.position, Vector3.forward, 10f, layersToCheck);
 
-        }
-        else
+        if(results.collider == null)
         {
-            Debug.Log("teleporting player");
+            //Debug.Log("teleporting player");
             PlayerSpawnManager.Instance.PlayerFellOff(multiData.Data.Value.PlayerID);
+            return;
+        }
+
+        GameObject tempOBJ = results.collider.gameObject;
+
+        switch (tempOBJ.layer)
+        {
+            //button
+            case 9:
+                Debug.Log("hit the button");
+                tempOBJ.GetComponent<ITriggerable>().OnTrigger();
+                break;
         }
     }
 

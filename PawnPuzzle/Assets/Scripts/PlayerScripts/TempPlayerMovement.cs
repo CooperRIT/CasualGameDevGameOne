@@ -1,21 +1,23 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TempPlayerMovement : NetworkBehaviour
 {
-    [SerializeField] InputDetector iD;
-    [SerializeField] float speed = 5f;
     [SerializeField] Transform playerTransform;
-    [SerializeField] SpriteRenderer playerSprite;
 
-    PlayerNetworkData networkData;
+    private PlayerInputs controls;
+    [SerializeField] private float moveDuration = 0.1f;
+    [SerializeField] private float gridSize = 1.0f;
 
-    Vector3 movementInputVec3 => iD.MovmentInput;
+    private bool isMoving = false;
 
     void Awake()
     {
-        networkData = GetComponent<PlayerNetworkData>();
-        playerSprite = transform.parent.GetComponent<SpriteRenderer>();
+        controls = new PlayerInputs();
+
+        controls.BasicMovement.WASD.performed += OnMoveInput;
     }
 
     public override void OnNetworkSpawn()
@@ -28,9 +30,57 @@ public class TempPlayerMovement : NetworkBehaviour
         }
     }
 
-    void Update()
+    private void OnEnable()
     {
-        // Local movement
-        playerTransform.position += movementInputVec3 * speed * Time.deltaTime;
+        controls.Enable();
+    }
+
+    private void OnDisable()
+    {
+        controls.Disable();
+    }
+    private void OnMoveInput(InputAction.CallbackContext context)
+    {
+        if (isMoving) return;
+
+        Vector2 input = context.ReadValue<Vector2>();
+
+        if (input != Vector2.zero)
+        {
+            StartCoroutine(Move(input));
+        }
+    }
+
+    private IEnumerator Move(Vector2 direction)
+    {
+        //Becuase of the nature of our levels, I am adding a special condition here
+        if(Mathf.Abs(direction.y) == 1)
+        {
+            gridSize = 1.15f;
+        }
+        else
+        {
+            gridSize = 1.5f;
+        }
+
+            isMoving = true;
+
+        Vector2 startPosition = transform.position;
+        Vector2 endPosition = startPosition + (direction * gridSize);
+
+        float elapsedTime = 0;
+
+        while (elapsedTime < moveDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float percent = elapsedTime / moveDuration;
+
+            playerTransform.position = Vector2.Lerp(startPosition, endPosition, percent);
+            yield return null;
+        }
+
+        playerTransform.position = endPosition;
+
+        isMoving = false;
     }
 }

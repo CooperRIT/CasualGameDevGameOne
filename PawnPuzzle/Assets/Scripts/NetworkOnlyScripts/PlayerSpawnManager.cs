@@ -73,9 +73,11 @@ public class PlayerSpawnManager : NetworkBehaviour
 
         LoadLevel();
 
-        winBox.position = Vector3.zero;
-
         gameStarted = true;
+
+        yield return new WaitForSeconds(.5f);
+
+        winBox.position = Vector3.zero;
     }
 
     /// <summary>
@@ -112,8 +114,9 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     void TeleportPlayers()
     {
-        players[0].transform.position = spawnPoints[levelIndex].spawnLocation_PlayerOne;
-        players[1].transform.position = spawnPoints[levelIndex].spawnLocation_PlayerTwo;
+        Debug.Log("teleport Players");
+        players[0].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerOne);
+        players[1].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerTwo);
     }
 
     [ClientRpc]
@@ -125,6 +128,11 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     public void SetWinGameCondition()
     {
+        if(!gameStarted)
+        {
+            return;
+        }
+
         gameStarted = false;
 
         /*if (IsServer)
@@ -135,12 +143,14 @@ public class PlayerSpawnManager : NetworkBehaviour
         //Play some sort of animation
 
         //play sound effect
-        SoundManager.instance.PlaySoundClip(winSound, winBox, 1f);
+        //SoundManager.instance.PlaySoundClip(winSound, winBox, 1f);
 
         //Increase level index
         levelIndex++;
 
-        StartGame();
+        Debug.Log("we starting next level");
+
+        StartCoroutine(nameof(StartGame));
     }
 
     [ClientRpc]
@@ -151,13 +161,41 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     public void PlayerFellOff(int playerId)
     {
-        if(IsServer && gameStarted)
+        playerId -= 1;
+
+        if(!gameStarted)
         {
-            SoundManager.instance.PlaySoundClip(deathSound, winBox, 1f);
-            players[0].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerOne);
             return;
         }
 
-        players[1].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerTwo);
+        Debug.Log(playerId);
+
+        switch(playerId)
+        {
+            case 0:
+                players[0].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerOne);
+                break;
+            case 1:
+                players[1].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerTwo);
+                break;
+        }
+
     }
+
+
+    #region LevelTwoFunctions
+
+    /// <summary>
+    /// This is much slower then I wanted, but I cannot pass through a gameobject and do not feel like directly referencing the gate here by making a system that-
+    /// store indicies and matches them with teh gate, this is simple and clean(YOOOOO KINGDOM HEARTS REFERNCE)
+    /// </summary>
+    /// <param name="gameObjectName"></param>
+    [ClientRpc]
+    public void DisableGateClientRpc(string gameObjectName)
+    {
+        GameObject.Find(gameObjectName).SetActive(false);
+    }
+
+
+    #endregion
 }

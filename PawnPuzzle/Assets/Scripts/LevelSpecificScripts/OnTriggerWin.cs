@@ -26,6 +26,7 @@ public class OnTriggerWin : NetworkBehaviour
 
             if(playersEntered == 2)
             {
+                Debug.Log("You won");
                 PlayerSpawnManager.Instance.SetWinGameCondition();
             }
         }
