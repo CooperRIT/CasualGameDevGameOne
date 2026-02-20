@@ -31,6 +31,9 @@ public class PlayerSpawnManager : NetworkBehaviour
 
     [SerializeField] Transform winBox;
 
+    [SerializeField] AudioClip winSound;
+    [SerializeField] AudioClip deathSound;
+
     public List<Sprite> sprites = new List<Sprite>();
 
     int levelIndex = 0;
@@ -131,6 +134,9 @@ public class PlayerSpawnManager : NetworkBehaviour
 
         //Play some sort of animation
 
+        //play sound effect
+        SoundManager.instance.PlaySoundClip(winSound, winBox, 1f);
+
         //Increase level index
         levelIndex++;
 
@@ -147,6 +153,7 @@ public class PlayerSpawnManager : NetworkBehaviour
     {
         if(IsServer && gameStarted)
         {
+            SoundManager.instance.PlaySoundClip(deathSound, winBox, 1f);
             players[0].MoveMeClientRpc(spawnPoints[levelIndex].spawnLocation_PlayerOne);
             return;
         }
