@@ -37,6 +37,7 @@ public class InputDetector : MonoBehaviour
 
     private void ReloadApplication(InputAction.CallbackContext ctx)
     {
+        NetworkManagerSingleton.networkManager.Shutdown();
         SceneManager.LoadScene(0);
     }
 

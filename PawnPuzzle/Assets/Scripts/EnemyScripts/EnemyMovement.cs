@@ -13,7 +13,7 @@ public class EnemyMovement : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 targetPosition;
 
-    private int direction = 1;
+    [SerializeField] private int direction = 1;
     private int numOfSteps = 0;
     private bool isMoving = false;
 
@@ -68,5 +68,13 @@ public class EnemyMovement : MonoBehaviour
 
         targetPosition = transform.position + moveDirection * gridSize;
         isMoving = true;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.layer == 8)
+        {
+            PlayerSpawnManager.Instance.PlayerFellOff(collision.transform.GetChild(0).GetComponent<PlayerNetworkData>().Data.Value.PlayerID);
+        }
     }
 }

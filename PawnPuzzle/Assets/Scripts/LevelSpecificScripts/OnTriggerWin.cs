@@ -5,14 +5,13 @@ using UnityEngine;
 
 public class OnTriggerWin : NetworkBehaviour
 {
-    int storedID = 0;
-    int playersEntered = 0;
+    [SerializeField] int storedID = 0;
+    [SerializeField] int playersEntered = 0;
 
     public void OnTriggerStay2D(Collider2D collision)
     {
         if (IsServer && collision.gameObject.layer == 8)
         {
-            Debug.Log("There is something inside me");
             int playerId = collision.transform.GetChild(0).GetComponent<PlayerNetworkData>().Data.Value.PlayerID;
             if(playerId == storedID)
             {
@@ -28,6 +27,8 @@ public class OnTriggerWin : NetworkBehaviour
             {
                 Debug.Log("You won");
                 PlayerSpawnManager.Instance.SetWinGameCondition();
+                playersEntered = 0;
+                storedID = 0;
             }
         }
     }

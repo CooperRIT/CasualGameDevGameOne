@@ -73,11 +73,20 @@ public class PlayerSpawnManager : NetworkBehaviour
 
         LoadLevel();
 
-        gameStarted = true;
-
         yield return new WaitForSeconds(.5f);
 
-        winBox.position = Vector3.zero;
+        gameStarted = true;
+
+
+        //Messy and should impliment a solution that allows for each level to modify their winbox position, but due to the scope of our project, this is fine
+        if (levelIndex == 2)
+        {
+            winBox.position = new Vector3(-0.78f, 0, 0);
+        }
+        else
+        {
+            winBox.position = Vector3.zero;
+        }
     }
 
     /// <summary>
@@ -167,8 +176,6 @@ public class PlayerSpawnManager : NetworkBehaviour
         {
             return;
         }
-
-        Debug.Log(playerId);
 
         switch(playerId)
         {
